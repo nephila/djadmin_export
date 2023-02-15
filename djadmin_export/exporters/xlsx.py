@@ -8,6 +8,7 @@ import tempfile
 
 from django.utils.encoding import force_text
 from django.utils.functional import Promise
+from django.utils.timezone import localtime
 
 from . import base
 
@@ -57,8 +58,13 @@ class XLSXExporter(base.BaseExporter):
             return force_text(value)
         elif isinstance(value, tuple(openpyxl.compat.NUMERIC_TYPES)):
             return value
-        elif isinstance(value, (bool, datetime.date)):
+        elif isinstance(value, bool):
             return value
+        elif isinstance(value, datetime.date):
+            try:
+                return localtime(value).replace(tzinfo=None)
+            except:
+                return value
         return force_text(value)
 
     def fill_file(self, f, columns):
